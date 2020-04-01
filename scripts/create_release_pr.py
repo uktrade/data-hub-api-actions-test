@@ -32,9 +32,9 @@ from script_utils.git import (
 from script_utils.news_fragments import list_news_fragments
 from script_utils.versioning import get_current_version
 
-GITHUB_BASE_REPO_URL = 'https://github.com/uktrade/data-hub-api'
+GITHUB_BASE_REPO_URL = 'https://github.com/uktrade/data-hub-api-actions-test'
 RELEASE_GUIDE_URL = (
-    'https://github.com/uktrade/data-hub-api/blob/develop/docs/'
+    'https://github.com/uktrade/data-hub-api-actions-test/blob/develop/docs/'
     'How%20to%20prepare%20a%20release.md'
 )
 PR_BODY_TEMPLATE = """This is the release PR for version {version}.
