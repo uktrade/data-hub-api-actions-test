@@ -22,7 +22,6 @@ A GitHub access token with the public_repo scope is required.
 import argparse
 import os
 import subprocess
-import webbrowser
 from getpass import getpass
 
 import requests
@@ -83,9 +82,6 @@ def publish_release():
         },
     )
     response.raise_for_status()
-    response_data = response.json()
-
-    webbrowser.open(response_data['html_url'])
 
     return tag
 
