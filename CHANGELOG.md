@@ -1,3 +1,17 @@
+# Data Hub API 28.8.0 (2020-04-02)
+
+
+## Features
+
+- **Advisers** The 'SSO email user ID' field is now displayed when editing advisers on the admin site. This field is read-only until existing values have been filled in.
+
+## Internal changes
+
+- **Advisers** A new admin site page for adding an adviser by looking up their details in Staff SSO was added. This page is currently only linked to if a feature flag is enabled.
+- Global search queries were updated to use the `excludes` Elasticsearch search parameter instead of the deprecated `exclude` parameter.
+- Elasticsearch queries were updated to use the custom `_document_type` field instead of the deprecated `_type` field.
+
+
 # Data Hub API 28.7.0 (2020-03-31)
 
 
