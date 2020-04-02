@@ -9,7 +9,7 @@ on:
 
 jobs:
   create_release_pr:
-    if: github.event.pull_request.merged && startsWith(github.head_ref, 'uktrade:changelog/')
+    if: github.event.pull_request.merged && startsWith(github.event.pull_request.head.label, 'uktrade:changelog/')
 
     runs-on: ubuntu-latest
 
