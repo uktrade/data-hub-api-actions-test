@@ -18,9 +18,11 @@ The script will abort if:
 """
 
 import argparse
+import os
 import subprocess
-import webbrowser
-from urllib.parse import quote, urlencode
+from getpass import getpass
+
+import requests
 
 from script_utils.command import CommandError, print_error
 from script_utils.git import (
@@ -32,9 +34,13 @@ from script_utils.git import (
 from script_utils.news_fragments import list_news_fragments
 from script_utils.versioning import get_current_version
 
-GITHUB_BASE_REPO_URL = 'https://github.com/uktrade/data-hub-api-actions-test'
+ORG = 'uktrade'
+REPO = 'data-hub-api-actions-test'
+
+GITHUB_BASE_REPO_URL = f'https://github.com/{ORG}/{REPO}'
+GITHUB_API_PULLS_URL = f'https://api.github.com/repos/{ORG}/{REPO}/pulls'
 RELEASE_GUIDE_URL = (
-    'https://github.com/uktrade/data-hub-api-actions-test/blob/develop/docs/'
+    f'https://github.com/{ORG}/{REPO}/blob/develop/docs/'
     'How%20to%20prepare%20a%20release.md'
 )
 PR_BODY_TEMPLATE = """This is the release PR for version {version}.
@@ -95,16 +101,21 @@ def create_release_branch():
     subprocess.run(['git', 'checkout', '-b', branch, f'{remote}/develop'], check=True)
     subprocess.run(['git', 'push', '--set-upstream', remote, branch], check=True)
 
-    params = {
-        'expand': '1',
-        'title': f'Release {version}',
-        'body': PR_BODY_TEMPLATE.format(version=version, release_guide_url=RELEASE_GUIDE_URL),
-    }
-    encoded_params = urlencode(params)
-    escaped_branch_name = quote(branch)
-    webbrowser.open(
-        f'{GITHUB_BASE_REPO_URL}/compare/master...{escaped_branch_name}?{encoded_params}',
+    token = os.environ.get('GITHUB_TOKEN') or getpass('GitHub access token: ')
+
+    response = requests.post(
+        GITHUB_API_PULLS_URL,
+        headers={
+            'Authorization': f'Bearer {token}',
+        },
+        json={
+            'title': f'Release {version}',
+            'base': 'master',
+            'head': branch,
+            'body': PR_BODY_TEMPLATE.format(version=version, release_guide_url=RELEASE_GUIDE_URL),
+        },
     )
+    response.raise_for_status()
 
     return branch
 
