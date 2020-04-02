@@ -8,8 +8,8 @@ on:
       - closed
 
 jobs:
-  build:
-    if: github.event.pull_request.merged && startsWith(github.head_ref, 'uktrade:changelog')
+  create_release_pr:
+    if: github.event.pull_request.merged && startsWith(github.head_ref, 'uktrade:changelog/')
 
     runs-on: ubuntu-latest
 
