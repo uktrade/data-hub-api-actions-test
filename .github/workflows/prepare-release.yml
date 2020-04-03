@@ -22,7 +22,7 @@ jobs:
       run: |
         python -m pip install --progress-bar off -r scripts/requirements.txt
 
-    - name: Run release PR script
+    - name: Run prepare release script
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
