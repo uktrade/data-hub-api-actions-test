@@ -1,0 +1,29 @@
+name: Prepare for release
+
+on: repository_dispatch
+
+jobs:
+  prepare_for_release:
+    name: Prepare for release
+
+    if: github.event.action == 'prepare-release'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --progress-bar off -r scripts/requirements.txt
+
+    - name: Run release PR script
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python scripts/prepare_release.py ${{ github.event.client_payload.release_type }}

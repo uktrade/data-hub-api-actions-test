@@ -20,9 +20,11 @@ The script will abort if:
 """
 
 import argparse
+import os
 import subprocess
-import webbrowser
-from urllib.parse import quote, urlencode
+from getpass import getpass
+
+import requests
 
 from script_utils.command import CommandError, print_error
 from script_utils.git import any_uncommitted_changes, local_branch_exists, remote_branch_exists
@@ -34,7 +36,11 @@ from script_utils.versioning import (
     VERSION_FILE_PATH,
 )
 
-BASE_GITHUB_REPO_URL = 'https://github.com/uktrade/data-hub-api-actions-test'
+ORG = 'uktrade'
+REPO = 'data-hub-api-actions-test'
+
+GITHUB_BASE_REPO_URL = f'https://github.com/{ORG}/{REPO}'
+GITHUB_API_PULLS_URL = f'https://api.github.com/repos/{ORG}/{REPO}/pulls'
 
 parser = argparse.ArgumentParser(
     description='Bump the version, update the changelog and open a PR.',
@@ -93,13 +99,21 @@ def prepare_release(release_type):
     subprocess.run(['git', 'commit', '-m', commit_message], check=True)
     subprocess.run(['git', 'push', '--set-upstream', remote, branch], check=True)
 
-    escaped_branch_name = quote(branch)
-    params = {
-        'expand': '1',
-        'title': pr_title,
-        'body': pr_body,
-    }
-    webbrowser.open(f'{BASE_GITHUB_REPO_URL}/compare/{escaped_branch_name}?{urlencode(params)}')
+    token = os.environ.get('GITHUB_TOKEN') or getpass('GitHub access token: ')
+
+    response = requests.post(
+        GITHUB_API_PULLS_URL,
+        headers={
+            'Authorization': f'Bearer {token}',
+        },
+        json={
+            'title': pr_title,
+            'base': 'develop',
+            'head': branch,
+            'body': pr_body,
+        },
+    )
+    response.raise_for_status()
 
     return branch
 
