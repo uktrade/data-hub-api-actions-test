@@ -22,6 +22,7 @@ The script will abort if:
 import argparse
 import os
 import subprocess
+import sys
 from getpass import getpass
 
 import requests
@@ -101,7 +102,7 @@ def prepare_release(release_type):
 
     token = os.environ.get('GITHUB_TOKEN') or getpass('GitHub access token: ')
 
-    response = requests.post(
+    pr_response = requests.post(
         GITHUB_API_PULLS_URL,
         headers={
             'Authorization': f'Bearer {token}',
@@ -113,7 +114,18 @@ def prepare_release(release_type):
             'body': pr_body,
         },
     )
-    response.raise_for_status()
+    pr_response.raise_for_status()
+    # add release label to the PR
+    issue_url = pr_response['issue_url']
+    github_api_add_label_url = f'{issue_url}/labels'
+    add_label_response = requests.post(
+        github_api_add_label_url,
+        headers={
+            'Authorization': f'Bearer {token}',
+        },
+        json={'labels': ['release']},
+    )
+    add_label_response.raise_for_status()
 
     return branch
 
@@ -126,6 +138,7 @@ def main():
         branch_name = prepare_release(args.release_type)
     except (CommandError, subprocess.CalledProcessError) as exc:
         print_error(exc)
+        sys.exit(1)
         return
 
     print(  # noqa: T001
