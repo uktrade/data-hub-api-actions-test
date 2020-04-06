@@ -116,7 +116,7 @@ def prepare_release(release_type):
     )
     pr_response.raise_for_status()
     # add release label to the PR
-    issue_url = pr_response['issue_url']
+    issue_url = pr_response.json()['issue_url']
     github_api_add_label_url = f'{issue_url}/labels'
     add_label_response = requests.post(
         github_api_add_label_url,
