@@ -22,6 +22,7 @@ A GitHub access token with the public_repo scope is required.
 import argparse
 import os
 import subprocess
+import sys
 from getpass import getpass
 
 import requests
@@ -94,6 +95,7 @@ def main():
         tag = publish_release()
     except (CommandError, HTTPError, subprocess.CalledProcessError) as exc:
         print_error(exc)
+        sys.exit(1)
         return
 
     print(  # noqa: T001
