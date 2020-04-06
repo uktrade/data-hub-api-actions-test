@@ -22,6 +22,7 @@ A GitHub access token with the public_repo scope is required.
 import argparse
 import os
 import subprocess
+import sys
 from getpass import getpass
 
 import requests
@@ -69,7 +70,7 @@ def publish_release():
 
     token = os.environ.get('GITHUB_TOKEN') or getpass('GitHub access token: ')
 
-    response = requests.post(
+    pr_response = requests.post(
         GITHUB_RELEASE_API_URL,
         headers={
             'Authorization': f'Bearer {token}',
@@ -81,7 +82,18 @@ def publish_release():
             'body': version_changelog,
         },
     )
-    response.raise_for_status()
+    pr_response.raise_for_status()
+    # add release label to the PR
+    issue_url = pr_response['issue_url']
+    github_api_add_label_url = f'{issue_url}/labels'
+    add_label_response = requests.post(
+        github_api_add_label_url,
+        headers={
+            'Authorization': f'Bearer {token}',
+        },
+        json={'labels': ['release']},
+    )
+    add_label_response.raise_for_status()
 
     return tag
 
@@ -94,6 +106,7 @@ def main():
         tag = publish_release()
     except (CommandError, HTTPError, subprocess.CalledProcessError) as exc:
         print_error(exc)
+        sys.exit(1)
         return
 
     print(  # noqa: T001
