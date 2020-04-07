@@ -1,3 +1,12 @@
+# Data Hub API 32.0.0 (2020-04-07)
+
+
+## Features
+
+- The REST API was replaced with a GraphQL-based API with many mutations.
+- The API is now a serverless function.
+
+
 # Data Hub API 31.0.0 (2020-04-07)
 
 
