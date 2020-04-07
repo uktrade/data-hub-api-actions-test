@@ -1,3 +1,4 @@
+gql==0.4.0
 requests==2.23.0
 semantic_version==2.8.4
 towncrier==19.2.0

@@ -23,8 +23,7 @@ import subprocess
 import sys
 from getpass import getpass
 
-import requests
-
+from github import GitHubAPIClient
 from script_utils.command import CommandError, print_error
 from script_utils.git import (
     any_uncommitted_changes,
@@ -38,8 +37,6 @@ from script_utils.versioning import get_current_version
 ORG = 'uktrade'
 REPO = 'data-hub-api-actions-test'
 
-GITHUB_BASE_REPO_URL = f'https://github.com/{ORG}/{REPO}'
-GITHUB_API_PULLS_URL = f'https://api.github.com/repos/{ORG}/{REPO}/pulls'
 RELEASE_GUIDE_URL = (
     f'https://github.com/{ORG}/{REPO}/blob/develop/docs/'
     'How%20to%20prepare%20a%20release.md'
@@ -104,30 +101,21 @@ def create_release_branch():
 
     token = os.environ.get('GITHUB_TOKEN') or getpass('GitHub access token: ')
 
-    pr_response = requests.post(
-        GITHUB_API_PULLS_URL,
-        headers={
-            'Authorization': f'Bearer {token}',
-        },
-        json={
-            'title': f'Release {version}',
-            'base': 'master',
-            'head': branch,
-            'body': PR_BODY_TEMPLATE.format(version=version, release_guide_url=RELEASE_GUIDE_URL),
-        },
+    client = GitHubAPIClient(token)
+
+    repo_id = client.get_repo_id(ORG, REPO)
+    pr_id = client.create_pr(
+        repo_id,
+        'master',
+        branch,
+        f'Release {version}',
+        PR_BODY_TEMPLATE.format(version=version, release_guide_url=RELEASE_GUIDE_URL),
+        draft=True,
     )
-    pr_response.raise_for_status()
-    # add release label to the PR
-    issue_url = pr_response.json()['issue_url']
-    github_api_add_label_url = f'{issue_url}/labels'
-    add_label_response = requests.post(
-        github_api_add_label_url,
-        headers={
-            'Authorization': f'Bearer {token}',
-        },
-        json={'labels': ['release']},
-    )
-    add_label_response.raise_for_status()
+
+    label_id = client.get_label(ORG, REPO, 'release')
+    client.add_pr_labels(pr_id, label_id)
+    client.mark_pr_ready_for_review(pr_id)
 
     return branch
 
@@ -141,7 +129,6 @@ def main():
     except (CommandError, subprocess.CalledProcessError) as exc:
         print_error(exc)
         sys.exit(1)
-        return
 
     print(  # noqa: T001
         f'Branch {branch_name} was created, pushed and opened in your web browser.',
