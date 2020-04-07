@@ -1,3 +1,11 @@
+# Data Hub API 30.0.0 (2020-04-07)
+
+
+## Features
+
+- Test news fragment.
+
+
 # Data Hub API 29.0.0 (2020-04-06)
 
 
