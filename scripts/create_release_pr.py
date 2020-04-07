@@ -23,7 +23,6 @@ import subprocess
 import sys
 from getpass import getpass
 
-from github import GitHubAPIClient
 from script_utils.command import CommandError, print_error
 from script_utils.git import (
     any_uncommitted_changes,
@@ -31,6 +30,7 @@ from script_utils.git import (
     remote_branch_exists,
     remote_tag_exists,
 )
+from script_utils.github import GitHubAPIClient
 from script_utils.news_fragments import list_news_fragments
 from script_utils.versioning import get_current_version
 
