@@ -110,12 +110,11 @@ def create_release_branch():
         branch,
         f'Release {version}',
         PR_BODY_TEMPLATE.format(version=version, release_guide_url=RELEASE_GUIDE_URL),
-        draft=True,
     )
 
     label_id = client.get_label(ORG, REPO, 'release')
     client.add_pr_labels(pr_id, label_id)
-    client.mark_pr_ready_for_review(pr_id)
+    client.add_comment(pr_id, "Please approve and merge this PR.")
 
     return branch
 

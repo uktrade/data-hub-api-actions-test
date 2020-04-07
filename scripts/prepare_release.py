@@ -111,7 +111,7 @@ def prepare_release(release_type):
 
     label_id = client.get_label(ORG, REPO, 'release')
     client.add_pr_labels(pr_id, label_id)
-    client.add_comment(pr_id, "Test")
+    client.add_comment(pr_id, "Please approve and merge this PR.")
 
     return branch
 
