@@ -107,12 +107,11 @@ def prepare_release(release_type):
         branch,
         pr_title,
         pr_body,
-        draft=True,
     )
 
     label_id = client.get_label(ORG, REPO, 'release')
     client.add_pr_labels(pr_id, label_id)
-    client.mark_pr_ready_for_review(pr_id)
+    client.add_comment(pr_id, "Test")
 
     return branch
 

@@ -107,3 +107,20 @@ mutation($input: MarkPullRequestReadyForReviewInput!) {
         }
         result = self._client.execute(query, variable_values=params)
         return result
+
+    def add_comment(self, pull_request_id, body):
+        query = gql("""
+        mutation($input: AddCommentInput!) { 
+          addComment(input:$input) {
+            clientMutationId
+          }
+        }
+            """)
+        params = {
+            'input': {
+                'subjectId': pull_request_id,
+                'body': body,
+            },
+        }
+        result = self._client.execute(query, variable_values=params)
+        return result
