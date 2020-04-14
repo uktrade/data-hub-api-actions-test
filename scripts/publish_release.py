@@ -7,7 +7,7 @@ This is a script that:
 - gets the version number from origin/master
 - extracts the changelog for that version from CHANGELOG.md
 - creates a release on GitHub for that version
-- opens your web browser to the created release
+- prints the URL for the created release
 
 The script will abort if:
 
@@ -83,8 +83,9 @@ def publish_release():
         },
     )
     response.raise_for_status()
+    response_data = response.json()
 
-    return tag
+    return tag, response_data['html_url']
 
 
 def main():
@@ -92,16 +93,17 @@ def main():
     parser.parse_args()
 
     try:
-        tag = publish_release()
+        tag, url = publish_release()
     except (CommandError, HTTPError, subprocess.CalledProcessError) as exc:
         print_error(exc)
         sys.exit(1)
-        return
 
-    print(  # noqa: T001
-        f'Release {tag} was published and opened in your web browser. If anything is wrong, edit '
-        f'the release on GitHub.',
-    )
+    msg = f"""Release {tag} was published at:
+{url}.
+
+If anything is wrong, edit the release on GitHub.
+"""
+    print(msg)  # noqa: T001
 
 
 if __name__ == '__main__':
